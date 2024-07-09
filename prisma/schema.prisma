@@ -1,0 +1,78 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model Client {
+  id      Int       @id @default(autoincrement())
+  name    String
+  email   String    @unique
+  Invoice Invoice[]
+}
+
+model Authorisation {
+  id    String @id
+  email String @unique
+  role  Int
+}
+
+model Customer {
+  id        String   @id
+  name      String
+  emailId   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime
+}
+
+model FinancialTransaction {
+  id          Int      @id @default(autoincrement())
+  type        String
+  amount      Decimal
+  date        DateTime
+  description String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime
+}
+
+model Invoice {
+  id        Int       @id @default(autoincrement())
+  number    String    @unique
+  clientId  Int
+  amount    Decimal
+  dueDate   DateTime
+  status    String
+  createdAt DateTime  @default(now())
+  updatedAt DateTime
+  Client    Client    @relation(fields: [clientId], references: [id])
+  Payment   Payment[]
+}
+
+model Payment {
+  id        Int      @id @default(autoincrement())
+  invoiceId Int
+  amount    Decimal
+  date      DateTime
+  method    String
+  createdAt DateTime @default(now())
+  updatedAt DateTime
+  Invoice   Invoice  @relation(fields: [invoiceId], references: [id])
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  name      String
+  email     String   @unique
+  role      String   @default("user")
+  createdAt DateTime @default(now())
+}
+
+model DynamicData {
+  id        Int      @id @default(autoincrement())
+  data      Json
+  createdAt DateTime @default(now())
+}
